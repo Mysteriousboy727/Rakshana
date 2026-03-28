@@ -4,6 +4,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
+import { ShieldAlert, RotateCcw, Activity, Network, CheckCircle2, Bot } from "lucide-react";
 
 // ── DATA ──────────────────────────────────────────────────────────────
 const ticketsData = [
@@ -220,6 +221,48 @@ function IncidentAndDecisionPanel() {
               borderRadius:6,
               transition:"width 1.6s cubic-bezier(0.4,0,0.2,1)",
             }} />
+          </div>
+        </div>
+
+        {/* Blast radius graph */}
+        <div style={{ marginBottom:24 }}>
+          <div style={{
+            fontSize:10, color:"#4a5568", fontFamily:"Rajdhani,sans-serif",
+            letterSpacing:1.2, textTransform:"uppercase", marginBottom:10,
+          }}>Blast Radius Graph</div>
+          <div style={{
+            border:"1px solid rgba(239,68,68,0.22)",
+            borderRadius:12,
+            background:"radial-gradient(circle at center, rgba(239,68,68,0.12), rgba(17,24,39,0.3) 55%, rgba(17,24,39,0.08) 100%)",
+            padding:10,
+            overflow:"hidden",
+          }}>
+            <svg viewBox="0 0 520 300" width="100%" height="220" role="img" aria-label="Blast radius showing Service D isolated from healthy services">
+              <defs>
+                <radialGradient id="failGlow" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity="0.5" />
+                  <stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+                </radialGradient>
+              </defs>
+
+              <circle cx="260" cy="150" r="112" fill="none" stroke="rgba(239,68,68,0.35)" strokeDasharray="8 7" strokeWidth="2" />
+              <circle cx="260" cy="150" r="136" fill="none" stroke="rgba(148,163,184,0.2)" strokeDasharray="4 8" strokeWidth="1" />
+
+              {[{ x:115, y:72, label:"Auth" }, { x:410, y:72, label:"Payments" }, { x:105, y:232, label:"Dashboard" }, { x:420, y:232, label:"Notifs" }].map((n, i) => (
+                <g key={i}>
+                  <line x1="260" y1="150" x2={n.x} y2={n.y} stroke="rgba(100,116,139,0.35)" strokeWidth="1.5" />
+                  <circle cx={n.x} cy={n.y} r="35" fill="rgba(34,197,94,0.08)" stroke="#22c55e" strokeWidth="2" />
+                  <text x={n.x} y={n.y + 4} fill="#86efac" fontSize="14" fontWeight="700" textAnchor="middle" fontFamily="Rajdhani,sans-serif">{n.label}</text>
+                </g>
+              ))}
+
+              <circle cx="260" cy="150" r="52" fill="url(#failGlow)" />
+              <circle cx="260" cy="150" r="40" fill="rgba(127,29,29,0.5)" stroke="#ef4444" strokeWidth="3" />
+              <text x="260" y="146" fill="#fca5a5" fontSize="16" fontWeight="700" textAnchor="middle" fontFamily="Rajdhani,sans-serif">Service D</text>
+              <text x="260" y="166" fill="#ef4444" fontSize="15" fontWeight="700" textAnchor="middle" fontFamily="Rajdhani,sans-serif">FAIL</text>
+
+              <text x="260" y="24" fill="#f87171" fontSize="11" fontWeight="700" textAnchor="middle" fontFamily="Rajdhani,sans-serif" letterSpacing="1">ISOLATION BOUNDARY</text>
+            </svg>
           </div>
         </div>
 
@@ -654,39 +697,146 @@ function AgentPipelineSection() {
 
 function ActionsLog() {
   const rows = [
-    { time:"14:03:21", action:"Traffic isolated",                  target:"Service D",    status:"ISOLATING",   dot:"#f59e0b" },
-    { time:"14:03:19", action:"NetworkPolicy applied",              target:"Service D",    status:"IN PROGRESS", dot:"#f59e0b" },
-    { time:"14:03:18", action:"Rollback initiated v2.3.1→v2.3.0",  target:"Service D",    status:"SUCCESS",     dot:"#22c55e" },
-    { time:"14:02:39", action:"Anomaly confirmed",                  target:"Memory spike", status:"CONFIRMED",   dot:"#22c55e" },
+    {
+      time:"14:03:21",
+      action:"Traffic isolated",
+      target:"Service D",
+      status:"Isolating",
+      state:"active",
+      dot:"#f59e0b",
+      agent:"Executor",
+      Icon: ShieldAlert,
+    },
+    {
+      time:"14:03:19",
+      action:"NetworkPolicy applied",
+      target:"Service D",
+      status:"In Progress",
+      state:"active",
+      dot:"#f59e0b",
+      agent:"Executor",
+      Icon: Network,
+    },
+    {
+      time:"14:03:18",
+      action:"Rollback initiated v2.3.1→v2.3.0",
+      target:"Service D",
+      status:"Success",
+      state:"done",
+      dot:"#22c55e",
+      agent:"Executor",
+      Icon: RotateCcw,
+    },
+    {
+      time:"14:02:39",
+      action:"Anomaly confirmed",
+      target:"Memory spike",
+      status:"Confirmed",
+      state:"done",
+      dot:"#22c55e",
+      agent:"Observer",
+      Icon: Activity,
+    },
   ];
+
   return (
     <div className="section-wrap">
-      <div className="chart-card">
-        <div className="chart-title" style={{ marginBottom:16 }}>Actions Log</div>
-        <table style={{ width:"100%", borderCollapse:"collapse" }}>
-          <thead>
-            <tr style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
-              {["Timestamp","Action","Target","Status"].map(h => (
-                <th key={h} style={{ textAlign:"left", padding:"8px 12px", fontSize:11, color:"#4a5568", fontFamily:"Rajdhani,sans-serif", fontWeight:600, letterSpacing:1, textTransform:"uppercase" }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row,i) => (
-              <tr key={i} style={{ borderBottom:"1px solid rgba(255,255,255,0.03)", background: i%2===0 ? "rgba(255,255,255,0.01)" : "transparent" }}>
-                <td style={{ padding:"12px", fontFamily:"'Courier New',monospace", fontSize:12, color:"#64748b", whiteSpace:"nowrap" }}>{row.time}</td>
-                <td style={{ padding:"12px", fontSize:13, color:"#e2e8f0" }}>{row.action}</td>
-                <td style={{ padding:"12px", fontSize:13, color:"#8892a4" }}>{row.target}</td>
-                <td style={{ padding:"12px" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:7 }}>
-                    <div style={{ width:7, height:7, borderRadius:"50%", background:row.dot, boxShadow:`0 0 6px ${row.dot}`, flexShrink:0 }} />
-                    <span style={{ fontSize:11, fontWeight:700, color:row.dot, fontFamily:"Rajdhani,sans-serif", letterSpacing:.8 }}>{row.status}</span>
+      <div
+        className="chart-card bg-[#13131a] border border-gray-800 rounded-2xl"
+        style={{ background:"#13131a", border:"1px solid rgba(148,163,184,0.18)", borderRadius:16 }}
+      >
+        <div className="chart-title text-slate-100" style={{ marginBottom:16 }}>Incident Response Timeline</div>
+
+        <div className="relative pl-9">
+          <div
+            className="absolute left-3 top-1 bottom-1 border-l-2 border-gray-800"
+            style={{ borderLeft:"2px solid rgba(71,85,105,0.55)" }}
+          />
+
+          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+            {rows.map((row, i) => {
+              const isActive = row.state === "active";
+              const Icon = row.Icon;
+              return (
+                <div key={i} className="relative">
+                  <div
+                    className={`absolute -left-9 top-5 h-4 w-4 rounded-full ring-4 ring-[#13131a] ${isActive ? "animate-pulse bg-amber-400" : "bg-emerald-400"}`}
+                    style={{
+                      width:16,
+                      height:16,
+                      borderRadius:"50%",
+                      left:-36,
+                      top:18,
+                      background:isActive ? "#f59e0b" : "#22c55e",
+                      boxShadow:isActive ? "0 0 12px rgba(245,158,11,.8)" : "0 0 12px rgba(34,197,94,.75)",
+                      animation:isActive ? "livePulse 1.1s ease-in-out infinite" : "none",
+                      border:"3px solid #13131a",
+                    }}
+                  />
+
+                  <div
+                    className="rounded-xl border border-gray-800 bg-[#101018]/80 px-4 py-3"
+                    style={{
+                      background:"linear-gradient(140deg, rgba(16,16,24,.95), rgba(16,16,24,.72))",
+                      border:"1px solid rgba(71,85,105,0.35)",
+                      borderRadius:12,
+                    }}
+                  >
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:12, marginBottom:6 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:9, minWidth:0 }}>
+                        <Icon size={15} color={isActive ? "#f59e0b" : "#22c55e"} strokeWidth={2.2} />
+                        <span className="text-sm font-semibold text-slate-100" style={{ fontSize:14, fontWeight:700, color:"#e2e8f0" }}>
+                          {row.action}
+                        </span>
+                      </div>
+
+                      <span
+                        className="text-[10px] font-semibold"
+                        style={{
+                          fontSize:10,
+                          fontWeight:700,
+                          color:isActive ? "#f59e0b" : "#22c55e",
+                          letterSpacing:.7,
+                          textTransform:"uppercase",
+                          whiteSpace:"nowrap",
+                        }}
+                      >
+                        {isActive ? "●" : "✓"} {row.status}
+                      </span>
+                    </div>
+
+                    <div style={{ display:"flex", alignItems:"center", flexWrap:"wrap", gap:10 }}>
+                      <span className="text-sm text-gray-400" style={{ fontSize:12, color:"#9ca3af", fontFamily:"'Courier New',monospace" }}>
+                        {row.time}
+                      </span>
+                      <span className="text-sm text-gray-400" style={{ fontSize:12, color:"#9ca3af" }}>
+                        Target: {row.target}
+                      </span>
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-[2px] text-[10px] text-violet-200"
+                        style={{
+                          display:"inline-flex",
+                          alignItems:"center",
+                          gap:4,
+                          fontSize:10,
+                          color:"#d8b4fe",
+                          background:"rgba(168,85,247,0.14)",
+                          border:"1px solid rgba(168,85,247,0.35)",
+                          borderRadius:999,
+                          padding:"2px 8px",
+                          fontFamily:"Rajdhani,sans-serif",
+                          fontWeight:600,
+                        }}
+                      >
+                        <Bot size={11} /> Agent: {row.agent}
+                      </span>
+                    </div>
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
